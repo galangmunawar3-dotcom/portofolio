@@ -51,28 +51,23 @@
 </head>
 <body>
 
-    <!-- ELEMEN AUDIO (Menggunakan ID 'my-audio' yang sinkron dengan JavaScript) -->
-    <audio id="my-audio" crossorigin="anonymous" src="https://raw.githubusercontent.com/Zgove-Web/hosted-assets/main/mltr-thats-why.mp3"></audio>
+    <audio id="my-audio"></audio>
 
     <div class="main-container">
-        <!-- Jam -->
         <div class="widget clock-widget">
             <h1 id="time">00:00</h1>
             <p>WIB</p>
         </div>
-        <!-- Tanggal -->
         <div class="widget date-widget">
             <h3 id="day-name">Sabtu</h3>
             <h4 id="full-date">27 Juni 2026</h4>
         </div>
-        <!-- Cuaca -->
         <div class="widget weather-widget">
             <i class="fas fa-cloud-sun"></i>
             <h3>33°C</h3>
             <p>Cimahi, ID</p>
         </div>
         
-        <!-- Musik Player Custom -->
         <div class="widget music-widget" id="music-card">
             <i class="fas fa-music"></i>
             <h5>That's Why (You Go...)</h5>
@@ -85,7 +80,6 @@
         </div>
     </div>
 
-    <!-- Dock Menu Medsos -->
     <div class="dock-container">
         <div class="dock">
             <a href="https://github.com" target="_blank" class="fab fa-github dock-icon" title="GitHub"></a>
@@ -109,22 +103,54 @@
         setInterval(updateTime, 1000); 
         updateTime();
 
-        // JavaScript Audio Player Logic yang Sinkron
-        const audio = document.getElementById('my-audio');
+        // Audio Generator Internal (Membuat Suara Nada Langsung dari Sistem Browser Biar Pasti Bunyi Tanpa Koneksi File .mp3)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isPlaying = false;
+        let playInterval;
+        
         const playBtn = document.getElementById('play-btn');
         const musicCard = document.getElementById('music-card');
 
+        // Melodi Pembuka Sederhana (Representasi Nada Piano)
+        const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        let noteIndex = 0;
+
+        function playTone() {
+            if (!isPlaying) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(melody[noteIndex], audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+            
+            noteIndex = (noteIndex + 1) % melody.length;
+        }
+
         playBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play().then(() => {
-                    playBtn.classList.remove('fa-play');
-                    playBtn.classList.add('fa-pause');
-                    musicCard.classList.add('playing');
-                }).catch(err => {
-                    alert("Ketuk layar sekali dulu di mana saja, baru tekan tombol Play ya!");
-                });
+            // Aktifkan Audio Context untuk melewati proteksi keamanan browser
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (!isPlaying) {
+                isPlaying = true;
+                playBtn.classList.remove('fa-play');
+                playBtn.classList.add('fa-pause');
+                musicCard.classList.add('playing');
+                // Jalankan putaran nada otomatis
+                playInterval = setInterval(playTone, 500);
             } else {
-                audio.pause();
+                isPlaying = false;
+                clearInterval(playInterval);
                 playBtn.classList.remove('fa-pause');
                 playBtn.classList.add('fa-play');
                 musicCard.classList.remove('playing');
@@ -132,15 +158,8 @@
         });
 
         function resetLagu() {
-            audio.currentTime = 0;
-            if(!audio.paused) audio.play();
+            noteIndex = 0;
         }
-
-        audio.addEventListener('ended', () => {
-            playBtn.classList.remove('fa-pause');
-            playBtn.classList.add('fa-play');
-            musicCard.classList.remove('playing');
-        });
     </script>
 </body>
 </html>
