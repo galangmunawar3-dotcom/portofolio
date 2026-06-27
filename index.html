@@ -26,21 +26,14 @@
         .weather-widget h3 { font-size: 1.2rem; }
         .weather-widget p { font-size: 0.8rem; opacity: 0.6; }
         
-        /* Music Widget & Glow Effect */
-        .music-widget { position: relative; overflow: hidden; }
-        .music-widget::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(29, 185, 84, 0.15) 0%, transparent 60%);
-            pointer-events: none;
+        /* Spotify Widget Container */
+        .music-widget-spotify {
+            grid-column: span 2; /* Memanjang ke bawah agar pas dengan bentuk player */
+            background: transparent;
+            border: none;
+            width: 100%;
+            height: 85px;
         }
-        .music-widget i.fa-music { font-size: 1.5rem; color: #1db954; margin-bottom: 8px; transition: transform 0.5s linear; }
-        .music-widget.playing i.fa-music { transform: rotate(360deg); }
-        .music-widget h5 { font-size: 0.85rem; font-weight: 600; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .music-widget p { font-size: 0.75rem; opacity: 0.6; margin-top: 2px; }
-        .music-controls { display: flex; gap: 20px; font-size: 1.1rem; cursor: pointer; margin-top: 12px; z-index: 2; }
-        .music-controls i { transition: color 0.2s, transform 0.1s; }
-        .music-controls i:active { transform: scale(0.9); }
-        .music-controls i:hover { color: #1db954; }
 
         /* Dock */
         .dock-container { display: flex; justify-content: center; width: 100%; padding-bottom: 20px; }
@@ -56,33 +49,30 @@
 <body>
 
     <div class="main-container">
+        <!-- Jam -->
         <div class="widget clock-widget">
             <h1 id="time">00:00</h1>
             <p>WIB</p>
         </div>
+        <!-- Tanggal -->
         <div class="widget date-widget">
             <h3 id="day-name">Sabtu</h3>
             <h4 id="full-date">27 Juni 2026</h4>
         </div>
+        <!-- Cuaca -->
         <div class="widget weather-widget">
             <i class="fas fa-cloud-sun"></i>
             <h3>33°C</h3>
             <p>Cimahi, ID</p>
         </div>
-        <div class="widget music-widget" id="music-card">
-            <i class="fas fa-music"></i>
-            <h5>That's Why (You Go...)</h5>
-            <p>Michael Learns to Rock</p>
-            <div class="music-controls">
-                <i class="fas fa-backward" onclick="resetLagu()"></i>
-                <i class="fas fa-play" id="play-btn"></i>
-                <i class="fas fa-forward" onclick="resetLagu()"></i>
-            </div>
+        
+        <!-- WIDGET SPOTIFY ASLI (Bisa di-play langsung & anti-error) -->
+        <div class="music-widget-spotify">
+            <iframe style="border-radius:15px" src="https://open.spotify.com/embed/track/2Z769POf9V57377O7-5758?utm_source=generator&theme=1" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
     </div>
 
-    <audio id="my-audio" crossorigin="anonymous" src="https://archive.org/download/michael-learns-to-rock-thats-why-you-go-away/Michael%20Learns%20To%20Rock%20-%20That%27s%20Why%20%28You%20Go%20Away%29.mp3"></audio>
-
+    <!-- Dock Menu Medsos -->
     <div class="dock-container">
         <div class="dock">
             <a href="https://github.com" target="_blank" class="fab fa-github dock-icon" title="GitHub"></a>
@@ -107,42 +97,6 @@
         }
         setInterval(updateTime, 1000); 
         updateTime();
-
-        // Logika Pengontrol Audio Player
-        const audio = document.getElementById('my-audio');
-        const playBtn = document.getElementById('play-btn');
-        const musicCard = document.getElementById('music-card');
-
-        playBtn.addEventListener('click', () => {
-            if (audio.paused) {
-                audio.play().then(() => {
-                    playBtn.classList.remove('fa-play');
-                    playBtn.classList.add('fa-pause');
-                    musicCard.classList.add('playing');
-                }).catch(error => {
-                    console.log("Pemutaran tertahan keamanan browser, butuh interaksi klik ulang:", error);
-                    alert("Silakan ketuk layar sekali lagi lalu tekan tombol Play!");
-                });
-            } else {
-                audio.pause();
-                playBtn.classList.remove('fa-pause');
-                playBtn.classList.add('fa-play');
-                musicCard.classList.remove('playing');
-            }
-        });
-
-        // Fitur Mengulang Lagu dari Awal
-        function resetLagu() {
-            audio.currentTime = 0;
-            if(!audio.paused) audio.play();
-        }
-
-        // Kembalikan Ikon ke Semula Jika Lagu Selesai
-        audio.addEventListener('ended', () => {
-            playBtn.classList.remove('fa-pause');
-            playBtn.classList.add('fa-play');
-            musicCard.classList.remove('playing');
-        });
     </script>
 </body>
 </html>
