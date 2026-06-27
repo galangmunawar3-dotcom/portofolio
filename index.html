@@ -61,8 +61,8 @@
             <p>WIB</p>
         </div>
         <div class="widget date-widget">
-            <h3>Sabtu</h3>
-            <h4>27 Juni 2026</h4>
+            <h3 id="day-name">Sabtu</h3>
+            <h4 id="full-date">27 Juni 2026</h4>
         </div>
         <div class="widget weather-widget">
             <i class="fas fa-cloud-sun"></i>
@@ -74,14 +74,14 @@
             <h5>That's Why (You Go...)</h5>
             <p>Michael Learns to Rock</p>
             <div class="music-controls">
-                <i class="fas fa-backward" onclick="alert('Fitur Next/Prev menyusul ya!')"></i>
+                <i class="fas fa-backward" onclick="resetLagu()"></i>
                 <i class="fas fa-play" id="play-btn"></i>
-                <i class="fas fa-forward" onclick="alert('Fitur Next/Prev menyusul ya!')"></i>
+                <i class="fas fa-forward" onclick="resetLagu()"></i>
             </div>
         </div>
     </div>
 
-    <audio id="my-audio" src="https://p.mainfacdn.com/mp3-preview/cb525ca8981df57c6b986b2b73ee16ba837ba7be?cid=774b75d5628844e8b63158c766d30554"></audio>
+    <audio id="my-audio" crossorigin="anonymous" src="https://archive.org/download/michael-learns-to-rock-thats-why-you-go-away/Michael%20Learns%20To%20Rock%20-%20That%27s%20Why%20%28You%20Go%20Away%29.mp3"></audio>
 
     <div class="dock-container">
         <div class="dock">
@@ -94,24 +94,35 @@
     </div>
 
     <script>
-        // Realtime Clock
+        // Update Waktu Nyata Otomatis
         function updateTime() {
             const now = new Date();
             document.getElementById('time').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            document.getElementById('day-name').innerText = days[now.getDay()];
+            document.getElementById('full-date').innerText = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
         }
-        setInterval(updateTime, 1000); updateTime();
+        setInterval(updateTime, 1000); 
+        updateTime();
 
-        // Audio Player Logic
+        // Logika Pengontrol Audio Player
         const audio = document.getElementById('my-audio');
         const playBtn = document.getElementById('play-btn');
         const musicCard = document.getElementById('music-card');
 
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.play();
-                playBtn.classList.remove('fa-play');
-                playBtn.classList.add('fa-pause');
-                musicCard.classList.add('playing');
+                audio.play().then(() => {
+                    playBtn.classList.remove('fa-play');
+                    playBtn.classList.add('fa-pause');
+                    musicCard.classList.add('playing');
+                }).catch(error => {
+                    console.log("Pemutaran tertahan keamanan browser, butuh interaksi klik ulang:", error);
+                    alert("Silakan ketuk layar sekali lagi lalu tekan tombol Play!");
+                });
             } else {
                 audio.pause();
                 playBtn.classList.remove('fa-pause');
@@ -120,7 +131,13 @@
             }
         });
 
-        // Reset icon saat lagu habis
+        // Fitur Mengulang Lagu dari Awal
+        function resetLagu() {
+            audio.currentTime = 0;
+            if(!audio.paused) audio.play();
+        }
+
+        // Kembalikan Ikon ke Semula Jika Lagu Selesai
         audio.addEventListener('ended', () => {
             playBtn.classList.remove('fa-pause');
             playBtn.classList.add('fa-play');
