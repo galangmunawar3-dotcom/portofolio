@@ -82,8 +82,8 @@
         </div>
     </div>
 
-    <!-- AUDIO DATA (Potongan Audio internal bebas blokir CORS) -->
-    <audio id="my-audio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    <!-- ELEMEN AUDIO (Link Streaming MP3 MLTR Asli & Stabil) -->
+    <audio id="my-audio" crossorigin="anonymous" src="https://raw.githubusercontent.com/Zgove-Web/hosted-assets/main/mltr-thats-why.mp3"></audio>
 
     <!-- Dock Menu Medsos -->
     <div class="dock-container">
@@ -113,10 +113,13 @@
 
         playBtn.addEventListener('click', () => {
             if (audio.paused) {
-                audio.play();
-                playBtn.classList.remove('fa-play');
-                playBtn.classList.add('fa-pause');
-                musicCard.classList.add('playing');
+                audio.play().then(() => {
+                    playBtn.classList.remove('fa-play');
+                    playBtn.classList.add('fa-pause');
+                    musicCard.classList.add('playing');
+                }).catch(err => {
+                    alert("Ketuk layar sekali dulu, baru tekan Play ya!");
+                });
             } else {
                 audio.pause();
                 playBtn.classList.remove('fa-pause');
